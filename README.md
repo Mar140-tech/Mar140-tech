@@ -1,13 +1,33 @@
-- 👋 Hi, I’m @Mar140-tech
-- 👀 I’m interested in coding.
-- 🌱 I’m currently learning how to code
-- 💞️ I’m looking to collaborate on other coders...
-- 📫 How to reach me on martyne@duck.com
-- 
-- 😄 Pronouns: ...
-- ⚡ Fun fact: ...
+# Hi there, I'm Mar140-tech 👋
 
-<!---
-Mar140-tech/Mar140-tech is a ✨ special ✨ repository because its `README.md` (this file) appears on your GitHub profile.
-You can click the Preview link to take a look at your changes.
---->
+## 👨‍💻 About Me
+- 🛡️ Aspiring Cyber Security Professional
+- 👨‍🎓 Currently learning Python & network vulnerability assessment
+- 🖥️ Exploring the world of Kali Linux and ethical hacking
+- 🛠️ Building towards creating stable network vulnerability software
+
+## 🏆 Skills & Tools
+- Python (beginner)
+- Kali Linux
+- Cyber Security basics (learning)
+- Article writing
+
+## 🚀 Projects
+- **Network Vulnerability Scanner** *(work in progress)*  
+  Learning how to build robust tools for detecting and analyzing vulnerabilities in networks.
+
+## ✍️ Articles & Blog
+I love sharing what I learn!  
+Check out my articles on [Google Blog](#)  <!-- Replace # with your blog link! -->
+
+## 🥊 Hobbies & Interests
+- Writing articles about tech & security
+- Boxing and staying active
+
+---
+
+*Always learning, always growing!*
+
+<!--
+Feel free to connect or reach out if you share similar interests or want to collaborate!
+-->
