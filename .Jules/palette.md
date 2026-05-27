@@ -1,0 +1,3 @@
+## 2025-05-15 - [Accessible Tabs Implementation]
+**Learning:** Converting `div` elements to semantic `button` elements for tabs with appropriate ARIA roles (`tablist`, `tab`, `tabpanel`) and keyboard navigation (Arrow keys, Home, End) provides a significantly more accessible and intuitive experience for keyboard and screen reader users. Using `:focus-visible` ensures that focus indicators only appear when navigating via keyboard, maintaining a clean UI for mouse users.
+**Action:** Always use semantic elements and ARIA roles for tabbed interfaces. Implement keyboard listeners to support standard tab interaction patterns.
