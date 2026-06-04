@@ -145,13 +145,35 @@
             text-align: center;
             cursor: pointer;
             transition: all 0.3s;
+            border: none;
             border-bottom: 3px solid transparent;
+            background: transparent;
+            color: white;
+            border-radius: 0;
+            box-shadow: none;
+            font-size: 14px;
+        }
+
+        .tab:hover {
+            background: rgba(255, 255, 255, 0.05);
+            transform: none !important;
+            box-shadow: none !important;
+        }
+
+        .tab:focus-visible {
+            outline: 2px solid #00ff9d;
+            outline-offset: -2px;
         }
 
         .tab.active {
             background: rgba(0, 168, 255, 0.2);
             border-bottom-color: #00ff9d;
             color: #00ff9d;
+        }
+
+        button:focus-visible {
+            outline: 3px solid #00ff9d;
+            outline-offset: 2px;
         }
 
         .tab-content {
@@ -368,7 +390,7 @@
 <body>
     <div class="container">
         <header>
-            <h1>📡 WiFi Scanner Pro</h1>
+            <h1><span aria-hidden="true">📡</span> WiFi Scanner Pro</h1>
             <p>Real-time Network Analysis on ACode</p>
             <div class="connection-status">
                 <div class="status-dot" id="statusDot"></div>
@@ -383,16 +405,16 @@
 
         <div class="controls">
             <button id="scanBtn" class="primary">
-                <span>🔍</span> Start Scan
+                <span aria-hidden="true">🔍</span> Start Scan
             </button>
             <button id="stopBtn" class="danger" disabled>
-                <span>⏹️</span> Stop Scan
+                <span aria-hidden="true">⏹️</span> Stop Scan
             </button>
             <button id="singleScanBtn" class="warning">
-                <span>📶</span> Single Scan
+                <span aria-hidden="true">📶</span> Single Scan
             </button>
             <button id="exportBtn" class="primary">
-                <span>📥</span> Export Data
+                <span aria-hidden="true">📥</span> Export Data
             </button>
         </div>
 
@@ -415,14 +437,14 @@
             </div>
         </div>
 
-        <div class="tabs">
-            <div class="tab active" data-tab="networks">WiFi Networks</div>
-            <div class="tab" data-tab="devices">Devices</div>
-            <div class="tab" data-tab="analysis">Analysis</div>
-            <div class="tab" data-tab="settings">Settings</div>
+        <div class="tabs" role="tablist">
+            <button class="tab active" data-tab="networks" role="tab" aria-selected="true" aria-controls="networks" id="tab-networks">WiFi Networks</button>
+            <button class="tab" data-tab="devices" role="tab" aria-selected="false" aria-controls="devices" id="tab-devices" tabindex="-1">Devices</button>
+            <button class="tab" data-tab="analysis" role="tab" aria-selected="false" aria-controls="analysis" id="tab-analysis" tabindex="-1">Analysis</button>
+            <button class="tab" data-tab="settings" role="tab" aria-selected="false" aria-controls="settings" id="tab-settings" tabindex="-1">Settings</button>
         </div>
 
-        <div class="tab-content active" id="networks">
+        <div class="tab-content active" id="networks" role="tabpanel" aria-labelledby="tab-networks">
             <div class="network-list" id="networkList">
                 <p style="text-align: center; padding: 20px; color: #aaa;">
                     No networks detected yet. Click "Start Scan" to begin.
@@ -430,7 +452,7 @@
             </div>
         </div>
 
-        <div class="tab-content" id="devices">
+        <div class="tab-content" id="devices" role="tabpanel" aria-labelledby="tab-devices">
             <div class="device-list" id="deviceList">
                 <p style="text-align: center; padding: 20px; color: #aaa;">
                     No devices discovered yet.
@@ -438,21 +460,21 @@
             </div>
         </div>
 
-        <div class="tab-content" id="analysis">
+        <div class="tab-content" id="analysis" role="tabpanel" aria-labelledby="tab-analysis">
             <div class="stat-card" style="text-align: left; margin-bottom: 10px;">
-                <h3 style="color: #74b9ff; margin-bottom: 10px;">📊 Network Analysis</h3>
+                <h3 style="color: #74b9ff; margin-bottom: 10px;"><span aria-hidden="true">📊</span> Network Analysis</h3>
                 <div id="analysisContent">
                     <p>Start scanning to see detailed analysis...</p>
                 </div>
             </div>
         </div>
 
-        <div class="tab-content" id="settings">
+        <div class="tab-content" id="settings" role="tabpanel" aria-labelledby="tab-settings">
             <div class="stat-card" style="text-align: left;">
-                <h3 style="color: #74b9ff; margin-bottom: 10px;">⚙️ Settings</h3>
+                <h3 style="color: #74b9ff; margin-bottom: 10px;"><span aria-hidden="true">⚙️</span> Settings</h3>
 
                 <div style="margin-bottom: 15px;">
-                    <label style="display: block; margin-bottom: 5px; color: #a4b0be;">
+                    <label for="scanInterval" style="display: block; margin-bottom: 5px; color: #a4b0be;">
                         Scan Interval (seconds):
                     </label>
                     <input type="range" id="scanInterval" min="5" max="60" value="10" class="bandwidth-slider">
@@ -462,7 +484,7 @@
                 </div>
 
                 <div style="margin-bottom: 15px;">
-                    <label style="display: block; margin-bottom: 5px; color: #a4b0be;">
+                    <label for="backendUrl" style="display: block; margin-bottom: 5px; color: #a4b0be;">
                         Backend URL:
                     </label>
                     <input type="text" id="backendUrl" value="http://localhost:5001"
@@ -472,7 +494,7 @@
                 </div>
 
                 <button id="saveSettings" class="primary" style="width: 100%; margin-top: 10px;">
-                    💾 Save Settings
+                    <span aria-hidden="true">💾</span> Save Settings
                 </button>
             </div>
         </div>
@@ -570,10 +592,28 @@
             saveSettingsBtn.addEventListener('click', saveSettings);
 
             // Tab switching
-            tabs.forEach(tab => {
+            tabs.forEach((tab, index) => {
                 tab.addEventListener('click', () => {
                     const tabId = tab.getAttribute('data-tab');
                     switchTab(tabId);
+                });
+
+                tab.addEventListener('keydown', (e) => {
+                    let newIndex = index;
+                    if (e.key === 'ArrowRight') {
+                        newIndex = (index + 1) % tabs.length;
+                    } else if (e.key === 'ArrowLeft') {
+                        newIndex = (index - 1 + tabs.length) % tabs.length;
+                    } else if (e.key === 'Home') {
+                        newIndex = 0;
+                    } else if (e.key === 'End') {
+                        newIndex = tabs.length - 1;
+                    } else {
+                        return;
+                    }
+                    e.preventDefault();
+                    tabs[newIndex].focus();
+                    switchTab(tabs[newIndex].getAttribute('data-tab'));
                 });
             });
 
@@ -681,10 +721,13 @@
         }
 
         function switchTab(tabId) {
-            tabs.forEach(t => t.classList.remove('active'));
-            tabContents.forEach(c => c.classList.remove('active'));
-            document.querySelector(`.tab[data-tab="${tabId}"]`).classList.add('active');
-            document.getElementById(tabId).classList.add('active');
+            tabs.forEach(t => {
+                const isActive = t.getAttribute('data-tab') === tabId;
+                t.classList.toggle('active', isActive);
+                t.setAttribute('aria-selected', isActive);
+                t.setAttribute('tabindex', isActive ? '0' : '-1');
+            });
+            tabContents.forEach(c => c.classList.toggle('active', c.id === tabId));
         }
 
         async function startContinuousScan() {
