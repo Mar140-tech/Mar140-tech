@@ -1,0 +1,3 @@
+## 2025-05-14 - Semantic Refactoring and Focus Management
+**Learning:** When refactoring non-semantic elements (like `div` tabs) to semantic ones (like `button`), it is critical to explicitly reset default browser styles (border, background) and restate inherited styles (font-size, color) to maintain visual consistency. Additionally, implementing `:focus-visible` with high-contrast outlines is essential for accessibility on dark-themed interfaces where default focus rings may be invisible.
+**Action:** Always use a CSS reset for semantic elements that replace non-semantic ones and provide explicit `:focus-visible` styles that contrast with the application's background.
