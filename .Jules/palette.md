@@ -1,0 +1,3 @@
+## 2025-05-14 - Accessible Tab Implementation
+**Learning:** In a legacy application using `div` elements for tabs, converting to semantic `button` elements requires careful CSS resets to maintain visual consistency while gaining native keyboard interaction. Implementing the WAI-ARIA Tab Panel pattern (automatic activation with Arrow keys) and using `focus-visible` ensures a seamless experience for both mouse and keyboard users.
+**Action:** Use the WAI-ARIA tab pattern by default for all navigation tabs. Always synchronize `aria-selected` and `tabindex` in the activation logic to support the roving tabindex pattern.
