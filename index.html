@@ -145,13 +145,22 @@
             text-align: center;
             cursor: pointer;
             transition: all 0.3s;
+            border: none;
             border-bottom: 3px solid transparent;
+            background: transparent;
+            color: inherit;
+            font-size: inherit;
         }
 
         .tab.active {
             background: rgba(0, 168, 255, 0.2);
-            border-bottom-color: #00ff9d;
+            border-bottom-color: #00ff9d !important;
             color: #00ff9d;
+        }
+
+        .tab:focus-visible {
+            outline: 2px solid #00ff9d;
+            outline-offset: -4px;
         }
 
         .tab-content {
@@ -415,14 +424,14 @@
             </div>
         </div>
 
-        <div class="tabs">
-            <div class="tab active" data-tab="networks">WiFi Networks</div>
-            <div class="tab" data-tab="devices">Devices</div>
-            <div class="tab" data-tab="analysis">Analysis</div>
-            <div class="tab" data-tab="settings">Settings</div>
+        <div class="tabs" role="tablist">
+            <button class="tab active" role="tab" aria-selected="true" aria-controls="networks" id="tab-networks" data-tab="networks">WiFi Networks</button>
+            <button class="tab" role="tab" aria-selected="false" aria-controls="devices" id="tab-devices" data-tab="devices" tabindex="-1">Devices</button>
+            <button class="tab" role="tab" aria-selected="false" aria-controls="analysis" id="tab-analysis" data-tab="analysis" tabindex="-1">Analysis</button>
+            <button class="tab" role="tab" aria-selected="false" aria-controls="settings" id="tab-settings" data-tab="settings" tabindex="-1">Settings</button>
         </div>
 
-        <div class="tab-content active" id="networks">
+        <div class="tab-content active" id="networks" role="tabpanel" aria-labelledby="tab-networks">
             <div class="network-list" id="networkList">
                 <p style="text-align: center; padding: 20px; color: #aaa;">
                     No networks detected yet. Click "Start Scan" to begin.
@@ -430,7 +439,7 @@
             </div>
         </div>
 
-        <div class="tab-content" id="devices">
+        <div class="tab-content" id="devices" role="tabpanel" aria-labelledby="tab-devices">
             <div class="device-list" id="deviceList">
                 <p style="text-align: center; padding: 20px; color: #aaa;">
                     No devices discovered yet.
@@ -438,7 +447,7 @@
             </div>
         </div>
 
-        <div class="tab-content" id="analysis">
+        <div class="tab-content" id="analysis" role="tabpanel" aria-labelledby="tab-analysis">
             <div class="stat-card" style="text-align: left; margin-bottom: 10px;">
                 <h3 style="color: #74b9ff; margin-bottom: 10px;">📊 Network Analysis</h3>
                 <div id="analysisContent">
@@ -447,7 +456,7 @@
             </div>
         </div>
 
-        <div class="tab-content" id="settings">
+        <div class="tab-content" id="settings" role="tabpanel" aria-labelledby="tab-settings">
             <div class="stat-card" style="text-align: left;">
                 <h3 style="color: #74b9ff; margin-bottom: 10px;">⚙️ Settings</h3>
 
@@ -577,6 +586,38 @@
                 });
             });
 
+            // Keyboard navigation for tabs
+            const tabList = document.querySelector('[role="tablist"]');
+            tabList.addEventListener('keydown', (e) => {
+                const target = e.target;
+                if (target.getAttribute('role') !== 'tab') return;
+
+                const tabArray = Array.from(tabs);
+                let index = tabArray.indexOf(target);
+                let newIndex = -1;
+
+                if (e.key === 'ArrowRight') {
+                    newIndex = (index + 1) % tabArray.length;
+                    e.preventDefault();
+                } else if (e.key === 'ArrowLeft') {
+                    newIndex = (index - 1 + tabArray.length) % tabArray.length;
+                    e.preventDefault();
+                } else if (e.key === 'Home') {
+                    newIndex = 0;
+                    e.preventDefault();
+                } else if (e.key === 'End') {
+                    newIndex = tabArray.length - 1;
+                    e.preventDefault();
+                }
+
+                if (newIndex !== -1) {
+                    const newTab = tabArray[newIndex];
+                    newTab.focus();
+                    const tabId = newTab.getAttribute('data-tab');
+                    switchTab(tabId);
+                }
+            });
+
             // Settings slider
             scanIntervalSlider.addEventListener('input', (e) => {
                 intervalValue.textContent = e.target.value + 's';
@@ -681,9 +722,13 @@
         }
 
         function switchTab(tabId) {
-            tabs.forEach(t => t.classList.remove('active'));
+            tabs.forEach(t => {
+                const isActive = t.getAttribute('data-tab') === tabId;
+                t.classList.toggle('active', isActive);
+                t.setAttribute('aria-selected', isActive);
+                t.setAttribute('tabindex', isActive ? '0' : '-1');
+            });
             tabContents.forEach(c => c.classList.remove('active'));
-            document.querySelector(`.tab[data-tab="${tabId}"]`).classList.add('active');
             document.getElementById(tabId).classList.add('active');
         }
 
