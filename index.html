@@ -166,6 +166,7 @@
             color: #00ff9d;
         }
 
+        button:focus-visible,
         .tab:focus-visible {
             outline: 2px solid #00ff9d;
             outline-offset: -4px;
@@ -336,6 +337,18 @@
             to { transform: rotate(360deg); }
         }
 
+        .spinner-sm {
+            border: 2px solid rgba(255, 255, 255, 0.2);
+            border-left-color: #ffffff;
+            border-radius: 50%;
+            width: 14px;
+            height: 14px;
+            animation: spin 0.8s linear infinite;
+            display: inline-block;
+            vertical-align: middle;
+            margin-right: 5px;
+        }
+
         /* Mobile optimizations */
         @media (max-width: 480px) {
             .controls {
@@ -385,7 +398,7 @@
 <body>
     <div class="container">
         <header>
-            <h1>📡 WiFi Scanner Pro</h1>
+            <h1><span aria-hidden="true">📡</span> WiFi Scanner Pro</h1>
             <p>Real-time Network Analysis on ACode</p>
             <div class="connection-status">
                 <div class="status-dot" id="statusDot"></div>
@@ -400,16 +413,16 @@
 
         <div class="controls">
             <button id="scanBtn" class="primary">
-                <span>🔍</span> Start Scan
+                <span aria-hidden="true">🔍</span> Start Scan
             </button>
-            <button id="stopBtn" class="danger" disabled>
-                <span>⏹️</span> Stop Scan
+            <button id="stopBtn" class="danger" disabled title="No active scan to stop">
+                <span aria-hidden="true">⏹️</span> Stop Scan
             </button>
             <button id="singleScanBtn" class="warning">
-                <span>📶</span> Single Scan
+                <span aria-hidden="true">📶</span> Single Scan
             </button>
             <button id="exportBtn" class="primary">
-                <span>📥</span> Export Data
+                <span aria-hidden="true">📥</span> Export Data
             </button>
         </div>
 
@@ -469,7 +482,7 @@
                 <h3 style="color: #74b9ff; margin-bottom: 10px;">⚙️ Settings</h3>
 
                 <div style="margin-bottom: 15px;">
-                    <label style="display: block; margin-bottom: 5px; color: #a4b0be;">
+                    <label for="scanInterval" style="display: block; margin-bottom: 5px; color: #a4b0be;">
                         Scan Interval (seconds):
                     </label>
                     <input type="range" id="scanInterval" min="5" max="60" value="10" class="bandwidth-slider">
@@ -479,7 +492,7 @@
                 </div>
 
                 <div style="margin-bottom: 15px;">
-                    <label style="display: block; margin-bottom: 5px; color: #a4b0be;">
+                    <label for="backendUrl" style="display: block; margin-bottom: 5px; color: #a4b0be;">
                         Backend URL:
                     </label>
                     <input type="text" id="backendUrl" value="http://localhost:5001"
@@ -489,7 +502,7 @@
                 </div>
 
                 <button id="saveSettings" class="primary" style="width: 100%; margin-top: 10px;">
-                    💾 Save Settings
+                    <span aria-hidden="true">💾</span> Save Settings
                 </button>
             </div>
         </div>
@@ -518,7 +531,8 @@
             networks: [],
             devices: [],
             stats: {},
-            retryCount: 0
+            retryCount: 0,
+            notificationTimeout: null
         };
 
         // DOM Elements
@@ -753,6 +767,7 @@
                     state.isScanning = true;
                     scanBtn.disabled = true;
                     stopBtn.disabled = false;
+                    stopBtn.removeAttribute('title');
                     showNotification('Continuous scan started.', 'success');
                 }
             } catch (error) {
@@ -769,6 +784,7 @@
                     state.isScanning = false;
                     scanBtn.disabled = false;
                     stopBtn.disabled = true;
+                    stopBtn.setAttribute('title', 'No active scan to stop');
                     showNotification('Scan stopped.', 'success');
                 }
             } catch (error) {
@@ -794,34 +810,59 @@
         }
 
         async function exportData() {
+            const btn = document.getElementById('exportBtn');
+            const originalContent = btn.innerHTML;
             try {
+                btn.disabled = true;
+                btn.innerHTML = '<span class="spinner-sm"></span> Exporting...';
                 const response = await fetch(`${CONFIG.backendUrl}/api/export`);
                 const data = await response.json();
                 showNotification(data.message, 'success');
             } catch (error) {
                 console.error('Error exporting data:', error);
                 showNotification('Failed to export data.', 'error');
+            } finally {
+                exportBtn.disabled = false;
+                exportBtn.innerHTML = originalContent;
             }
         }
 
-        function saveSettings() {
-            const newUrl = backendUrlInput.value;
-            const newInterval = scanIntervalSlider.value;
-            CONFIG.backendUrl = newUrl;
-            CONFIG.scanInterval = parseInt(newInterval) * 1000;
-            localStorage.setItem('backendUrl', newUrl);
-            localStorage.setItem('scanInterval', newInterval);
-            showNotification('Settings saved!', 'success');
-            // Re-connect with new settings
-            connectToBackend();
+        async function saveSettings() {
+            const btn = document.getElementById('saveSettings');
+            const originalContent = btn.innerHTML;
+            try {
+                btn.disabled = true;
+                btn.innerHTML = '<span class="spinner-sm"></span> Saving...';
+
+                const newUrl = backendUrlInput.value;
+                const newInterval = scanIntervalSlider.value;
+                CONFIG.backendUrl = newUrl;
+                CONFIG.scanInterval = parseInt(newInterval) * 1000;
+                localStorage.setItem('backendUrl', newUrl);
+                localStorage.setItem('scanInterval', newInterval);
+
+                // Re-connect with new settings
+                await connectToBackend();
+                showNotification('Settings saved!', 'success');
+            } catch (error) {
+                console.error('Error saving settings:', error);
+                showNotification('Failed to save settings.', 'error');
+            } finally {
+                btn.disabled = false;
+                btn.innerHTML = originalContent;
+            }
         }
 
         function showNotification(message, type = 'info') {
+            if (state.notificationTimeout) {
+                clearTimeout(state.notificationTimeout);
+            }
             notification.textContent = message;
             notification.style.borderColor = type === 'success' ? '#00ff9d' : '#e74c3c';
             notification.style.display = 'block';
-            setTimeout(() => {
+            state.notificationTimeout = setTimeout(() => {
                 notification.style.display = 'none';
+                state.notificationTimeout = null;
             }, 3000);
         }
 
