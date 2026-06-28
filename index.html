@@ -707,12 +707,35 @@
             return div.innerHTML;
         }
 
+        function getSignalStrengthInfo(dBm) {
+            let bars = 0;
+            let label = 'Very Poor';
+
+            if (dBm >= -60) {
+                bars = 4;
+                label = 'Excellent';
+            } else if (dBm >= -70) {
+                bars = 3;
+                label = 'Good';
+            } else if (dBm >= -80) {
+                bars = 2;
+                label = 'Fair';
+            } else if (dBm >= -90) {
+                bars = 1;
+                label = 'Poor';
+            }
+
+            return { bars, label };
+        }
+
         function renderNetworks() {
             if (state.networks.length === 0) {
                 networkList.innerHTML = '<p style="text-align: center; padding: 20px; color: #aaa;">No networks detected.</p>';
                 return;
             }
-            networkList.innerHTML = state.networks.map(n => `
+            networkList.innerHTML = state.networks.map(n => {
+                const info = getSignalStrengthInfo(n.signal);
+                return `
                 <div class="network-item">
                     <div class="network-header">
                         <span class="network-name">${escapeHTML(n.ssid)}</span>
@@ -720,10 +743,17 @@
                     </div>
                     <div class="network-details">
                         <span>BSSID: ${escapeHTML(n.bssid)}</span>
-                        <span>Signal: ${n.signal} dBm</span>
+                        <div class="signal-strength" aria-label="Signal strength: ${info.label} (${n.signal} dBm)">
+                            <div class="signal-bars" aria-hidden="true">
+                                ${[1, 2, 3, 4].map(i => `
+                                    <div class="signal-bar" style="height: ${i * 4}px; opacity: ${i <= info.bars ? 1 : 0.2}"></div>
+                                `).join('')}
+                            </div>
+                            <span>${n.signal} dBm</span>
+                        </div>
                     </div>
                 </div>
-            `).join('');
+            `}).join('');
         }
 
         function startPeriodicUpdates() {
