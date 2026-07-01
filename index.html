@@ -707,6 +707,32 @@
             return div.innerHTML;
         }
 
+        function getSignalStrengthLabel(dbm) {
+            if (dbm >= -60) return 'Excellent';
+            if (dbm >= -70) return 'Good';
+            if (dbm >= -80) return 'Fair';
+            return 'Poor';
+        }
+
+        function renderSignalBars(dbm) {
+            const label = getSignalStrengthLabel(dbm);
+            const strength = (dbm >= -60) ? 4 : (dbm >= -70) ? 3 : (dbm >= -80) ? 2 : 1;
+            let barsHtml = '';
+            for (let i = 1; i <= 4; i++) {
+                const height = i * 4;
+                const opacity = i <= strength ? 1 : 0.2;
+                barsHtml += `<div class="signal-bar" style="height: ${height}px; opacity: ${opacity}"></div>`;
+            }
+            return `
+                <div class="signal-strength" role="img" aria-label="Signal strength: ${label} (${dbm} dBm)">
+                    <div class="signal-bars" aria-hidden="true">
+                        ${barsHtml}
+                    </div>
+                    <span style="font-size: 11px;" aria-hidden="true">${label} (${dbm} dBm)</span>
+                </div>
+            `;
+        }
+
         function renderNetworks() {
             if (state.networks.length === 0) {
                 networkList.innerHTML = '<p style="text-align: center; padding: 20px; color: #aaa;">No networks detected.</p>';
@@ -720,7 +746,7 @@
                     </div>
                     <div class="network-details">
                         <span>BSSID: ${escapeHTML(n.bssid)}</span>
-                        <span>Signal: ${n.signal} dBm</span>
+                        ${renderSignalBars(n.signal)}
                     </div>
                 </div>
             `).join('');
